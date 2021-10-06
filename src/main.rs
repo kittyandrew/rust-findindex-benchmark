@@ -16,7 +16,7 @@ fn main() {
     }
 
     let haystack_file = &args[1];
-    let needle = &args[2];
+    let needle        = &args[2];
 
 
     // Reading input.
@@ -34,27 +34,53 @@ fn main() {
         }
     };
 
-    // Looking for needle.
+    let mut start: SystemTime;
+    let total_time_left:  f64;
+    let total_time_right: f64;
+
     let times = 100;    
-    let mut total_time_micros: u128 = 0;
+    let mut total_time_micros_left:  u128 = 0;
+    let mut total_time_micros_right: u128 = 0;
 
-    println!("Doing {} iterations of search for all instances of '{}' ...", times, needle);
+    let mut total_work:   u64 = 0;
 
+    // From the left.
+
+    println!("Doing {} iterations of search for all instances of '{}' from the left ...", times, needle);
     for _ in 1..=times {  // With the help of ..= we made range inclusive on both ends.
-        let start = SystemTime::now();
+        start = SystemTime::now();
 
-        let mut indecies = Vec::new();
         for m in contents.match_indices(needle) {
-            indecies.push(m.0);
+            total_work += m.0 as u64;
         }
 
         //println!("Output all found indecies: {:?}", indecies);
         //println!("Found indecies: {:?}", indecies.len());
 
-        total_time_micros += SystemTime::now().duration_since(start).unwrap().as_micros();
+        total_time_micros_left += SystemTime::now().duration_since(start).unwrap().as_micros();
     }
-    let total_time = total_time_micros as f64 / 1_000_000.;
-    println!("Final total time: {} seconds!", total_time);
-    println!("Per iter (N={}): {}", times as f64, total_time / times as f64);
+
+    // From the right.
+
+    println!("Doing {} iterations of search for all instances of '{}' from the right ...", times, needle);
+    for _ in 1..=times {  // With the help of ..= we made range inclusive on both ends.
+        start = SystemTime::now();
+
+        for m in contents.rmatch_indices(needle) {
+            total_work += m.0 as u64;
+        }
+
+        //println!("Output all found indecies: {:?}", indecies);
+        //println!("Found indecies: {:?}", indecies.len());
+
+        total_time_micros_right += SystemTime::now().duration_since(start).unwrap().as_micros();
+    }
+
+    total_time_left = total_time_micros_left as f64 / 1_000_000.;
+    total_time_right = total_time_micros_right as f64 / 1_000_000.;
+
+    println!("Final total time: {} / {} seconds!", total_time_left, total_time_right);
+    println!("Per iter (N={}): {:.10} / {:.10} seconds.", times as f64, total_time_left / times as f64, total_time_right / times as f64);
+    println!("Result (total_work): {}", total_work);
 }
 
