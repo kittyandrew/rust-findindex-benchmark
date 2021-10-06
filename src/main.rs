@@ -9,7 +9,7 @@ fn main() {
     let args: Vec<String> = env::args().collect();
 
     if args.len() < 3 {
-        println!("\nUSAGE: index_profile <haystackfile> <needle>\n\n");
+        println!("\nUSAGE: rust-shakespeare <haystackfile> <needle>\n\n");
         println!(" <haystackfile> = path of file containing haystack text\n");
         println!(" <needle>       = text to search for\n");
         exit(1);
@@ -44,7 +44,6 @@ fn main() {
         let start = SystemTime::now();
 
         let mut indecies = Vec::new();
-        let mut result: Option<usize>;
         for m in contents.match_indices(needle) {
             indecies.push(m.0);
         }
